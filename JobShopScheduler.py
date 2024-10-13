@@ -193,6 +193,7 @@ class JobShopScheduler():
         for job, amr_num in zip(jobs, amr_assignments):
             job.amr_number = amr_num
             amrs[job.amr_number].assigned_jobs.append(job.job_number)
+            amrs[job.amr_number].job_sequence.append(job.job_number)
             
             
     def get_amr_assignments(self):
@@ -238,7 +239,12 @@ class JobShopScheduler():
                     
                     if operation.operation_number == 0:
                         if amrs[jobs[operation.job_number].amr_number].completed_jobs == []:
-                            operation.start_time = machines[operation.machine].finish_operation_time
+                            # THE AMR MUST TRAVEL TO FIRST MACHINE BEFORE PROCESSING FIRST OPERATION
+                            initial_travel_time = operation.calculate_travel_time(amrs, jobs, self.distance_matrix, self.enable_travel_time, 1)
+                            if machines[operation.machine].finish_operation_time > initial_travel_time:
+                                operation.start_time = machines[operation.machine].finish_operation_time
+                            else:
+                                operation.start_time = machines[operation.machine].finish_operation_time + initial_travel_time
                         else:
                             # MAKE SURE THE PREVIOUS JOBS TRAVEL TIME SHOULD BE GIVEN TO NEXT JOB IF M'TH JOB IS HAVING PJ = 0
                             i = 0

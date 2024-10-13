@@ -1,5 +1,8 @@
 import numpy as np
 
+# LAST COLLUMN IS UNLOADING DOCK
+# LAST 2ND COLLUMN IS LOADING DOCK
+
 four_machine_matrix = np.array([
         [0, 5, 10, 10, 6, 9],
         [5, 0, 10, 10, 6, 9],
