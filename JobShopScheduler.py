@@ -32,7 +32,7 @@ class JobShopScheduler():
         self.pm = pm
         self.pswap = 0.5
         self.pinv = 0.5
-        self.T = 100
+        self.T = T
         self.machine_data = machine_data
         self.ptime_data = ptime_data
         
