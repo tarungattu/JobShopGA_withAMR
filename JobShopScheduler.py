@@ -30,11 +30,12 @@ class JobShopScheduler():
         self.N = N
         self.pc = pc
         self.pm = pm
-        self.pswap = 0.5
-        self.pinv = 0.5
+        self.pswap = pm
+        self.pinv = pm
         self.T = T
         self.machine_data = machine_data
         self.ptime_data = ptime_data
+        self.stagnation_limit = 50
         
         self.activate_termination = 0
         self.enable_travel_time = 0
@@ -45,6 +46,7 @@ class JobShopScheduler():
         self.runs = 1
         
         self.distance_matrix = None
+        self.save_file_directory = 'E:\\Python\\JobShopGA\\Results\\default'
         
         if self.enable_travel_time:
             self.distance_matrix = distances.four_machine_matrix
@@ -365,7 +367,7 @@ class JobShopScheduler():
         chromosome.machine_sequence = machine_sequence
         chromosome.machine_list = machines
         chromosome.ptime_sequence = ptime_sequence
-        chromosome.Cmax = Cmax
+        chromosome.Cmax = round(Cmax, 0)
         chromosome.fitness = chromosome.Cmax + chromosome.penalty
         
         return chromosome
@@ -436,9 +438,14 @@ class JobShopScheduler():
         if self.create_txt_file:
             # CHANGE DIRECTORY FOR SAVING FIGURE
             timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
-            filename = f'E:\\Python\\JobShopGA\\Results\\pc0.6pm0.5\\la23\\gantt{timestamp}'
-            plt.savefig(filename)
-        # plt.show()
+            filename = f'gantt{timestamp}.png'  # Filename without directory
+            directory = self.save_file_directory  # Your directory
+
+            # Use os.path.join to correctly join directory and filename
+            filepath = os.path.join(directory, filename)
+
+            # Now save the figure to the correct path
+            plt.savefig(filepath)
         
 
     def tournament(self, population):
@@ -742,6 +749,36 @@ class JobShopScheduler():
         # Write the data to a JSON file
         with open(output_file, 'w') as json_file:
             json.dump(amr_data, json_file, indent=4)
+            
+    def get_file(self, best_chromosome, processing_time, converged_at):
+        timestamp = time.strftime("%Y%m%d-%H%M%S")
+        filename = f'la01{timestamp}.txt'  # CHANGE FILE NAME
+        if converged_at == 0:
+            converged_at = processing_time
+
+        directory = self.save_file_directory  # CHANGE SAVING DIRECTORY
+        filepath = os.path.join(directory, filename)
+        
+        with open(filepath, 'w') as file:
+            file.write(f"Welcome to main function at {datetime.now().strftime('%d-%m %H:%M:%S')}.{datetime.now().microsecond}\n")
+            file.write(f"Population size: {self.N}\n")
+            file.write(f"Number of generations: {self.T}\n")
+            file.write(f"Number of AMRs: {self.num_amrs}\n")
+            file.write(f"Encoded list: {best_chromosome.encoded_list}\n")
+            file.write(f"ptime sequence: {best_chromosome.ptime_sequence}\n\n")
+
+            # file.write(f"Number of Integer Variables is {self.get_integer_variables_count()}\n")
+            # file.write(f"Number of Binary Decision Variables is {self.get_binary_variables_count()}\n")
+            # file.write(f"Number of Constraints is {self.get_constraints_count()}\n\n")
+
+            file.write(f"Objective is {best_chromosome.Cmax} time units\n")
+            file.write(f"Problem solved in {processing_time} seconds\n\n")
+
+            file.write("-----------------------------------------------------------\n")
+            file.write("n \t m\t a\t T \t N \t Cmax \t CPU Time (s)\t Pc \t Pm \t Termination value\n")
+            file.write("-----------------------------------------------------------\n")
+            file.write(f" {self.n} \t {self.m} \t {self.num_amrs} \t {self.T} \t {self.N} \t {best_chromosome.Cmax} \t {processing_time} \t {self.pc} \t {self.pm} \t {self.stagnation_limit} \n")
+            file.write("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n")
 
     def GeneticAlgorithm(self):
     
@@ -839,10 +876,13 @@ class JobShopScheduler():
                 
             if best_chromosome.fitness == history and self.activate_termination == 1:
                 stagnation += 1
-                
-            if stagnation > 10:
+            else:
+                stagnation = 0
+                           
+            if stagnation > self.stagnation_limit:
                 elapsed = time.time() - start_time
                 converged_at = elapsed
+                break
             else:
                 converged_at = 0
             
