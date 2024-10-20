@@ -226,6 +226,7 @@ class JobShopScheduler():
         skipped = []
         while t_op != []:
             # print('running')
+            
             for operation in t_op:
                 # CHECK IF AMR IS ASSIGNED TO A JOB, ONLY ASSIGN IF THE OPERATION NUMBER IS ZERO
                 if amrs[jobs[operation.job_number].amr_number].current_job == None and operation.operation_number == 0:
@@ -320,8 +321,8 @@ class JobShopScheduler():
     def process_chromosome(self, chromosome, amr_assignments):
         
         # print(operation_data)
-        jobs = [Job(number) for number in range(self.n)]
-        machines = [Machine(number) for number in range(self.m)]
+        jobs = [Job(number, self.n) for number in range(self.n)]
+        machines = [Machine(number, self.m) for number in range(self.m)]
         amrs = [AMR(number) for number in range(self.num_amrs)]
         self.assign_operations(jobs, self.operation_data)
         
@@ -395,7 +396,7 @@ class JobShopScheduler():
         tmpTitle = f'Job Shop Scheduling (m={self.m}; n={self.n}; AMRs:{self.num_amrs}; Cmax={round(Cmax, 2)}; )'
         ax.set_title(tmpTitle, size=20, color='blue')
 
-        colors = ['orange', 'deepskyblue', 'indianred', 'limegreen', 'slateblue', 'gold', 'violet', 'grey', 'red', 'magenta', 'blue', 'green', 'silver', 'lavender', 'turquoise', 'orchid']
+        colors = ['orange', 'deepskyblue', 'indianred', 'limegreen', 'slateblue', 'gold', 'violet', 'grey', 'red', 'magenta', 'blue', 'green', 'silver', 'lavender', 'turquoise', 'orchid', 'yellow', 'pink', 'purple', 'brown', 'cyan']
 
         for i in range(self.m):
             joblen = len(chromosome.machine_list[i].operationlist)
@@ -403,7 +404,7 @@ class JobShopScheduler():
                 j = chromosome.machine_list[i].operationlist[k]
                 ST = j.start_time
                 if j.Pj != 0:
-                    ax.broken_barh([(ST, j.Pj)], (-0.3 + i, 0.6), facecolor=colors[j.job_number], linewidth=1, edgecolor='black')
+                    ax.broken_barh([(ST, j.Pj)], (-0.3 + i, 0.6), facecolor=colors[j.job_number % len(colors)], linewidth=1, edgecolor='black')
                     ax.broken_barh([(j.Cj, j.travel_time)], (-0.3 + i, 0.6), facecolor='black', linewidth=1, edgecolor='black')
                     
                     ax.text(ST + (j.Pj / 2 - 0.3), i + 0.03, '{}'.format(j.job_number + 1), fontsize=18)
@@ -421,7 +422,7 @@ class JobShopScheduler():
         top_ax.grid(True)
 
         # Plot the AMR jobs
-        top_colors = ['orange', 'deepskyblue', 'indianred', 'limegreen', 'slateblue', 'gold', 'violet', 'grey', 'red', 'magenta', 'blue', 'green', 'silver', 'lavender', 'turquoise', 'orchid']
+        top_colors = ['orange', 'deepskyblue', 'indianred', 'limegreen', 'slateblue', 'gold', 'violet', 'grey', 'red', 'magenta', 'blue', 'green', 'silver', 'lavender', 'turquoise', 'orchid', 'yellow', 'pink', 'purple', 'brown', 'cyan']
 
         for i in range(self.num_amrs):
             joblen = len(chromosome.amr_list[i].job_objects)
@@ -430,7 +431,7 @@ class JobShopScheduler():
                 ST = j.job_start_time
                 duration = j.job_completion_time - j.job_start_time
                 if duration != 0:
-                    top_ax.broken_barh([(ST, duration)], (-0.3 + i, 0.6), facecolor=top_colors[j.job_number], linewidth=1, edgecolor='black')
+                    top_ax.broken_barh([(ST, duration)], (-0.3 + i, 0.6), facecolor=top_colors[j.job_number % len(top_colors)], linewidth=1, edgecolor='black')
                     top_ax.text(ST + (duration) / 2 , i - 0.2, '{}'.format(j.job_number + 1), fontsize=14, ha='center')
 
         plt.tight_layout()
@@ -750,7 +751,14 @@ class JobShopScheduler():
         with open(output_file, 'w') as json_file:
             json.dump(amr_data, json_file, indent=4)
             
-    def get_file(self, best_chromosome, processing_time, converged_at):
+    def generate_population(self, N):
+        population = []
+        for _ in range(N):
+            num = [round(random.uniform(0,self.m*self.n), 2) for _ in range(self.n*self.m)]
+            population.append(num)
+        return population
+            
+    def get_file(self, best_chromosome, processing_time, converged_at, xpoints, ypoints):
         timestamp = time.strftime("%Y%m%d-%H%M%S")
         filename = f'la01{timestamp}.txt'  # CHANGE FILE NAME
         if converged_at == 0:
@@ -765,20 +773,27 @@ class JobShopScheduler():
             file.write(f"Number of generations: {self.T}\n")
             file.write(f"Number of AMRs: {self.num_amrs}\n")
             file.write(f"Encoded list: {best_chromosome.encoded_list}\n")
+            file.write(f"ranked list: {best_chromosome.ranked_list}\n")
+            file.write(f"operation_index list: {best_chromosome.operation_index_list}\n")
+            file.write(f"machine_sequence: {best_chromosome.machine_sequence}\n")
             file.write(f"ptime sequence: {best_chromosome.ptime_sequence}\n\n")
+            
+            file.write(f"amr_machine_sequences: {best_chromosome.amr_machine_sequences}\n")
+            file.write(f"amr_ptime_sequences: {best_chromosome.amr_ptime_sequences}\n")
+            
 
-            # file.write(f"Number of Integer Variables is {self.get_integer_variables_count()}\n")
-            # file.write(f"Number of Binary Decision Variables is {self.get_binary_variables_count()}\n")
-            # file.write(f"Number of Constraints is {self.get_constraints_count()}\n\n")
+            file.write(f"Makespan is {best_chromosome.Cmax} time units\n")
+            file.write(f"Fitness is {best_chromosome.fitness} \n")
+            file.write(f"Problem solved in {round(processing_time, 2)} seconds\n\n")
 
-            file.write(f"Objective is {best_chromosome.Cmax} time units\n")
-            file.write(f"Problem solved in {processing_time} seconds\n\n")
-
-            file.write("-----------------------------------------------------------\n")
-            file.write("n \t m\t a\t T \t N \t Cmax \t CPU Time (s)\t Pc \t Pm \t Termination value\n")
-            file.write("-----------------------------------------------------------\n")
-            file.write(f" {self.n} \t {self.m} \t {self.num_amrs} \t {self.T} \t {self.N} \t {best_chromosome.Cmax} \t {processing_time} \t {self.pc} \t {self.pm} \t {self.stagnation_limit} \n")
-            file.write("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n")
+            file.write("----------------------------------------------------------------------------------------------\n")
+            file.write("n \t m\t a\t T \t N \t Pc \t Pm \t Cmax \t CPU Time (s) \t Termination value\n")
+            file.write("----------------------------------------------------------------------------------------------\n")
+            file.write(f" {self.n} \t {self.m} \t {self.num_amrs} \t {self.T} \t {self.N} \t {self.pc} \t {self.pm}  \t {best_chromosome.Cmax} \t {round(processing_time, 2)} \t {self.stagnation_limit} \n")
+            file.write("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n")
+            
+            for i, j in zip(xpoints, ypoints):
+                file.write(f'{i} \t {j} \n')
 
     def GeneticAlgorithm(self):
     
@@ -789,17 +804,21 @@ class JobShopScheduler():
         t = 0
         ypoints = []
         
-        # generate initial population
-        # initial_population = generate_population(N)
-        # population = []
-        # for encoded_list in initial_population:
-        #     # print(f'generated list: {encoded_list}')
-        #     chromosome = process_chromosome(encoded_list)
-        #     population.append(chromosome)
         
         self.amr_assignments = self.get_amr_assignments()
-            
-        population = self.generate_population_with_heuristic(self.operation_data, self.amr_assignments)
+        # generate initial population
+        
+        
+        # RANDOM BUG HEURISTIC NOT WORKING WHEN MACHINES ARE 20
+        if self.m == 20:
+            initial_population = self.generate_population(self.N)
+            population = []
+            for encoded_list in initial_population:
+                # print(f'generated list: {encoded_list}')
+                chromosome = self.process_chromosome(encoded_list, self.amr_assignments)
+                population.append(chromosome)
+        else:
+            population = self.generate_population_with_heuristic(self.operation_data, self.amr_assignments)
             
         sorted_population = sorted(population, key = lambda  x : x.fitness )
             
@@ -913,8 +932,18 @@ class JobShopScheduler():
         end_time = time.time()
         processing_time = end_time - start_time
         
+        machine_seq_amrs, ptime_seq_amrs = self.get_sequences_in_amr(best_chromosome.amr_list)
+        print(machine_seq_amrs,'\n',ptime_seq_amrs)   
+        
+        if self.update_json_file:
+            self.create_amr_json(machine_seq_amrs, ptime_seq_amrs, 'amr_data.json')
+
+        best_chromosome.amr_machine_sequences = machine_seq_amrs
+        best_chromosome.amr_ptime_sequences = ptime_seq_amrs
+        
+        
         if self.create_txt_file:
-            self.get_file(best_chromosome, processing_time, converged_at)
+            self.get_file(best_chromosome, processing_time, converged_at, xpoints, ypoints)
         
         
         # print(f'best Cmax = {ypoints[N-1]}')
@@ -934,14 +963,6 @@ class JobShopScheduler():
         else:
             plt.close()
         
-        machine_seq_amrs, ptime_seq_amrs = self.get_sequences_in_amr(best_chromosome.amr_list)
-        print(machine_seq_amrs,'\n',ptime_seq_amrs)   
-        
-        if self.update_json_file:
-            self.create_amr_json(machine_seq_amrs, ptime_seq_amrs, 'amr_data.json')
-
-        best_chromosome.amr_machine_sequences = machine_seq_amrs
-        best_chromosome.amr_ptime_sequences = ptime_seq_amrs
         
         return best_chromosome
 

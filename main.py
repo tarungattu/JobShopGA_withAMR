@@ -19,15 +19,16 @@ def main():
     la23_data10 = benchmarks.la23['machine_data']
     la23_ptime10 = benchmarks.la23['ptime_data']
     
-    
+    ta20_20_machine_data = benchmarks.twenty_fifty['machine_data']
+    ta20_20_ptime_data = benchmarks.twenty_fifty['ptime_data']
     
     
     # scheduler1 = JobShopScheduler(4, 3, 2, 50, 0.7, 0.5, 100, machine_data4, ptime_data4)    
     # scheduler1.set_distance_matrix(distances.four_machine_matrix)
     
     
-    scheduler1 = JobShopScheduler(6, 6, 2, 250, 0.7, 0.5, 300, machine_data6, ptime_data6)    
-    scheduler1.set_distance_matrix(distances.six_machine_matrix)
+    # scheduler1 = JobShopScheduler(6, 6, 2, 250, 0.7, 0.5, 300, machine_data6, ptime_data6)    
+    # scheduler1.set_distance_matrix(distances.six_machine_matrix)
     
     
     # scheduler1 = JobShopScheduler(5, 10, 3, 350, 0.7, 0.5, 450, machine_data5, ptime_data5)    
@@ -36,8 +37,14 @@ def main():
     
     
     # scheduler1 = JobShopScheduler(10, 10, 3, 350, 0.7, 0.5, 450, machine_data10, ptime_data10)    
-    # scheduler1 = JobShopScheduler(10, 15, 3, 350, 0.7, 0.5, 450, la23_data10, la23_ptime10)    
+    # scheduler1 = JobShopScheduler(10, 15, 3, 350, 0.7, 0.5, 450, la23_data10, la23_ptime10) 
     # scheduler1.set_distance_matrix(distances.ten_machine_matrix)
+    
+    
+    scheduler1 = JobShopScheduler(20, 20, 4, 10, 0.7, 0.5, 450, ta20_20_machine_data, ta20_20_ptime_data)    
+    scheduler1.set_distance_matrix(distances.twenty_machine_matrix)
+    
+    
     scheduler1.runs = 1
     scheduler1.display_schedule = 1
     scheduler1.display_convergence = 0
