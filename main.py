@@ -23,8 +23,8 @@ def main():
     ta20_20_ptime_data = benchmarks.twenty_fifty['ptime_data']
     
     
-    # scheduler1 = JobShopScheduler(4, 3, 2, 50, 0.7, 0.5, 100, machine_data4, ptime_data4)    
-    # scheduler1.set_distance_matrix(distances.four_machine_matrix)
+    scheduler1 = JobShopScheduler(4, 3, 2, 50, 0.7, 0.5, 100, machine_data4, ptime_data4)    
+    scheduler1.set_distance_matrix(distances.four_machine_matrix)
     
     
     # scheduler1 = JobShopScheduler(6, 6, 2, 250, 0.7, 0.5, 300, machine_data6, ptime_data6)    
@@ -41,15 +41,15 @@ def main():
     # scheduler1.set_distance_matrix(distances.ten_machine_matrix)
     
     
-    scheduler1 = JobShopScheduler(20, 20, 4, 10, 0.7, 0.5, 450, ta20_20_machine_data, ta20_20_ptime_data)    
-    scheduler1.set_distance_matrix(distances.twenty_machine_matrix)
+    # scheduler1 = JobShopScheduler(20, 20, 4, 10, 0.7, 0.5, 450, ta20_20_machine_data, ta20_20_ptime_data)    
+    # scheduler1.set_distance_matrix(distances.twenty_machine_matrix)
     
     
     scheduler1.runs = 1
     scheduler1.display_schedule = 1
     scheduler1.display_convergence = 0
     scheduler1.enable_travel_time = 1
-    scheduler1.create_txt_file = 1
+    scheduler1.create_txt_file = 0
     
     scheduler1.stagnation_limit = 100
     scheduler1.activate_termination = 1
