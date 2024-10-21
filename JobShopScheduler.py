@@ -934,6 +934,11 @@ class JobShopScheduler():
         
         machine_seq_amrs, ptime_seq_amrs = self.get_sequences_in_amr(best_chromosome.amr_list)
         print(machine_seq_amrs,'\n',ptime_seq_amrs)   
+
+
+        # Update the job sequence list for each machine for best chromosome.
+        for machine in best_chromosome.machine_list:
+            machine.get_job_sequence()
         
         if self.update_json_file:
             self.create_amr_json(machine_seq_amrs, ptime_seq_amrs, 'amr_data.json')
