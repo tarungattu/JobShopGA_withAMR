@@ -58,6 +58,11 @@ class JobShopScheduler():
         self.amr_assignments = None
         
         
+    def GetUniqueFileName (self, prefix, ftype):
+        timestamp = int (time.time())
+        fileName = "{}_m{}_n{}_a{}_{}.{}".format (prefix, self.m, self.n, self.num_amrs, timestamp, ftype)
+        return fileName
+        
     # recieve number of completed jobs and reschedule the remaining jobs, also mention number of amrs present during rescheduling.
     def reschedule(self, num_completed_jobs, num_amrs):
         self.machine_data = self.machine_data[num_completed_jobs * self.m:]
@@ -438,15 +443,18 @@ class JobShopScheduler():
         
         if self.create_txt_file:
             # CHANGE DIRECTORY FOR SAVING FIGURE
+            
+            folder_name = "run results"
+        
+            # Check if the folder exists,   if not, create it
+            if not os.path.exists(folder_name):
+                os.makedirs(folder_name)
+                
+                
             timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
-            filename = f'gantt{timestamp}.png'  # Filename without directory
-            directory = self.save_file_directory  # Your directory
-
-            # Use os.path.join to correctly join directory and filename
-            filepath = os.path.join(directory, filename)
-
-            # Now save the figure to the correct path
-            plt.savefig(filepath)
+            filename = os.path.join(folder_name, self.GetUniqueFileName("GA", "png"))
+            
+            plt.savefig(filename)
         
 
     def tournament(self, population):
@@ -759,33 +767,42 @@ class JobShopScheduler():
         return population
             
     def get_file(self, best_chromosome, processing_time, converged_at, xpoints, ypoints):
+        # Generate timestamp for filename
         timestamp = time.strftime("%Y%m%d-%H%M%S")
-        filename = f'la01{timestamp}.txt'  # CHANGE FILE NAME
+        filename = f'la01{timestamp}.txt'  # Generate unique file name
+        
         if converged_at == 0:
             converged_at = processing_time
 
-        directory = self.save_file_directory  # CHANGE SAVING DIRECTORY
+        # Define the folder name
+        directory = "run results"  # Folder for saving the file
+
+        # Check if folder exists, create if necessary
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+
+        # Construct the full file path
         filepath = os.path.join(directory, filename)
-        
+
+        # Write the contents to the file
         with open(filepath, 'w') as file:
             file.write(f"Welcome to main function at {datetime.now().strftime('%d-%m %H:%M:%S')}.{datetime.now().microsecond}\n")
             file.write(f"Population size: {self.N}\n")
             file.write(f"Number of generations: {self.T}\n")
             file.write(f"Number of AMRs: {self.num_amrs}\n")
             file.write(f"Encoded list: {best_chromosome.encoded_list}\n")
-            file.write(f"ranked list: {best_chromosome.ranked_list}\n")
-            file.write(f"operation_index list: {best_chromosome.operation_index_list}\n")
-            file.write(f"machine_sequence: {best_chromosome.machine_sequence}\n")
-            file.write(f"ptime sequence: {best_chromosome.ptime_sequence}\n\n")
+            file.write(f"Ranked list: {best_chromosome.ranked_list}\n")
+            file.write(f"Operation_index list: {best_chromosome.operation_index_list}\n")
+            file.write(f"Machine sequence: {best_chromosome.machine_sequence}\n")
+            file.write(f"Ptime sequence: {best_chromosome.ptime_sequence}\n\n")
             
-            file.write(f"amr_machine_sequences: {best_chromosome.amr_machine_sequences}\n")
-            file.write(f"amr_ptime_sequences: {best_chromosome.amr_ptime_sequences}\n")
+            file.write(f"AMR machine sequences: {best_chromosome.amr_machine_sequences}\n")
+            file.write(f"AMR ptime sequences: {best_chromosome.amr_ptime_sequences}\n")
             
-
             file.write(f"Makespan is {best_chromosome.Cmax} time units\n")
             file.write(f"Fitness is {best_chromosome.fitness} \n")
             file.write(f"Problem solved in {round(processing_time, 2)} seconds\n\n")
-
+            
             file.write("----------------------------------------------------------------------------------------------\n")
             file.write("n \t m\t a\t T \t N \t Pc \t Pm \t Cmax \t CPU Time (s) \t Termination value\n")
             file.write("----------------------------------------------------------------------------------------------\n")
