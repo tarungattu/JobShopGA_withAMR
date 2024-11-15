@@ -72,12 +72,11 @@ display_schedule = 0
 create_txt_file = 0
 update_json_file = 0
 runs = 1
-self.save_file_directory = 'C:\\absolute\\path\\to\\folder'
 ```
 
 These allow you to do usefull stuff such as terminate the code after reaching a certain stagnamtion limit, enable or disable using the travel time, display the evolution graph of the generations, display the schedule as a gantt chart (matplotlib brokenbar), and even write the solution information into a text file after specifying the saving dirsctory for the scheduler!
       
-**Note: Saving the file will require you to set the save_file_directory before setting it as 1**
+**Note: Saving the file will create a folder called runs, and will dump the best chromosome gantt chart and txt file in it.**
 
 Finally run the genetic algorithm, optionally you can store the best chromosome for accessing any data needed later on for any other application.
 
@@ -89,3 +88,17 @@ best_chromosome = example_scheduler.GeneticAlgorithm()
 <img src="https://github.com/user-attachments/assets/a52a6b00-94cc-40b0-b303-1526492a93df" alt="Example solution" width="700"/>
 
 ## Guide to ADD instances to the Benchmarks file (coming soon)
+Benchmark instances in the benchmarks file are stored as dictionaries, (might later make them into json files). The dictionary will have machine data; the routing of the job on the shop floor, and ptime_data, te amount of time the job will stay at each machine for processing.
+For example:
+```bash
+pinedo = {
+    'machine_data' : [0,1,2,3, 1,0,3,2, 0,1,3,2],
+    'ptime_data' : [10,8,4,0, 8,3,5,6, 4,7,3,0]
+}
+```
+The first four numbers in machine_data are the routing of machine numbers job 0 will go to:= machine 0-> machine 1-> machine 2-> machine 3.
+The first four numbers in ptime_data are the corresponding processing time at each machine. 10 seconds processing at machine 0, 8 seconds processing at machine 1, and so on. Each Job will have the route including every machine, even if it isnt going to visit the machine. (In this case the processing time is set to zero, like job 0 at machine 3, since the processing time is zero, it will not visit that machine.)
+
+Hence the data for job 1 will be after the first 4 values in both lists. (As there are a total of 4 machines in this instance)
+This follows the Taillard standard of organizing Job shop scheduling instances)
+
