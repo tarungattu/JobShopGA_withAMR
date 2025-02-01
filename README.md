@@ -102,3 +102,22 @@ The first four numbers in ptime_data are the corresponding processing time at ea
 Hence the data for job 1 will be after the first 4 values in both lists. (As there are a total of 4 machines in this instance)
 This follows the Taillard standard of organizing Job shop scheduling instances)
 
+## 📋 Credits
+
+If you use this Job Shop Scheduling Algorithm in your research or projects, please consider citing our article:
+
+**"Scheduling of jobs and autonomous mobile robots: Towards the realization of line-less assembly systems"**  
+Published in the *International Journal of Industrial Engineering Computations* (2025).  
+[Read the article here](https://www.growingscience.com/ijiec/IJIEC_2025_3.pdf).
+
+### 📖 Citation (BibTeX):
+```bibtex
+@article{Gattu2025,
+    author = {Tarun Ramesh Gattu and Sachin Karadgi and Chinmay S. Magi and Amit Kore and Lloyd Lawrence
+    Noronha and P. S. Hiremath},
+    year = {2025},
+    month = {01},
+    title = {Scheduling of jobs and autonomous mobile robots: Towards the realization of line-less assembly systems},
+    journal = {International Journal of Industrial Engineering Computations},
+    doi = {10.5267/j.ijiec.2025.1.003}
+}
