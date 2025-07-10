@@ -108,7 +108,7 @@ If you use this Job Shop Scheduling Algorithm in your research or projects, plea
 
 **"Scheduling of jobs and autonomous mobile robots: Towards the realization of line-less assembly systems"**  
 Published in the *International Journal of Industrial Engineering Computations* (2025).  
-[Read the article here]([https://www.growingscience.com/ijiec/IJIEC_2025_3.pdf](https://www.growingscience.com/ijiec/Vol16/IJIEC_2025_3.pdf)).
+[Read the article here]([[https://www.growingscience.com/ijiec/IJIEC_2025_3.pdf](https://www.growingscience.com/ijiec/Vol16/IJIEC_2025_3.pdf)](https://www.growingscience.com/ijiec/Vol16/IJIEC_2025_3.pdf)).
 
 ### 📖 Citation (BibTeX):
 ```bibtex
